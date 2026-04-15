@@ -1,4 +1,4 @@
-# OTA Firmware Update System — ESP32 + ESP8266
+# OTA Firmware Update System - ESP32 + ESP8266
 
 > Wireless firmware delivery over Wi-Fi. No cables. No manual visits. Just push and reboot.
 
@@ -6,13 +6,12 @@
 [![Framework](https://img.shields.io/badge/framework-Arduino%20%7C%20PlatformIO-orange)](https://platformio.org/)
 [![Protocol](https://img.shields.io/badge/protocol-HTTP%20%7C%20TCP--IP-green)](https://en.wikipedia.org/wiki/HTTP)
 [![RTOS](https://img.shields.io/badge/RTOS-FreeRTOS-purple)](https://www.freertos.org/)
-[![License](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
 
 ---
 
 ## Overview
 
-This project implements a production-grade **Over-The-Air (OTA) firmware update system** for embedded IoT devices. The ESP32 acts as a trigger master — it sends a single HTTP request to wake the ESP8266 client, which then autonomously downloads a new firmware binary from a local server, flashes itself, and reboots — all without any physical intervention.
+This project implements a production-grade **Over-The-Air (OTA) firmware update system** for embedded IoT devices. The ESP32 acts as a trigger master it sends a single HTTP request to wake the ESP8266 client, which then autonomously downloads a new firmware binary from a local server, flashes itself, and reboots all without any physical intervention.
 
 ```
 ESP32 (Master)           ESP8266 (Client)           PC (Firmware Server)
@@ -30,7 +29,7 @@ ESP32 (Master)           ESP8266 (Client)           PC (Firmware Server)
 
 ## Why OTA Matters
 
-Imagine 500 temperature sensors deployed across a factory floor. A critical bug is discovered in the firmware. Without OTA, every device requires a physical visit, a USB cable, and a manual flash — weeks of work and significant cost.
+Imagine 500 temperature sensors deployed across a factory floor. A critical bug is discovered in the firmware. Without OTA, every device requires a physical visit, a USB cable, and a manual flash weeks of work and significant cost.
 
 **With this system, you push a fix from your laptop. All 500 devices update overnight.**
 
@@ -69,12 +68,12 @@ The ESP8266 holds two firmware partitions in its 4 MB flash. The running firmwar
 
 ```
 ota-esp32-esp8266/
-├── esp32-master/               # ESP32 — OTA trigger master
+├── esp32-master/               # ESP32 // OTA trigger master
 │   ├── platformio.ini          # Board: esp32dev, framework: arduino
 │   └── src/
 │       └── main.cpp            # FreeRTOS task, HTTPClient trigger
 │
-├── esp8266-client/             # ESP8266 — OTA client
+├── esp8266-client/             # ESP8266 // OTA client
 │   ├── platformio.ini          # Board: nodemcuv2 (or d1_mini)
 │   └── src/
 │       └── main.cpp            # WebServer + ESPhttpUpdate
@@ -239,15 +238,6 @@ Switch to the ESP8266 Serial Monitor. You should see:
 
 ---
 
-## License
-
-This project is licensed under the [MIT License](LICENSE).
-
----
-
 ## Author
 
-**Ala Eddine Derbel**
-*Embedded Systems Engineer*
-
-[![GitHub](https://img.shields.io/badge/GitHub-AlaEddineDerbel-black?logo=github)](https://github.com/)
+**Ala Eddine Derbel**, *Embedded Systems Engineer*
