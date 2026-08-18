@@ -1,4 +1,4 @@
-# OTA Firmware Update System — ESP32 + ESP8266
+# OTA Firmware Update System ESP32 + ESP8266
 
 > Wireless firmware delivery over Wi-Fi. No cables, no manual visits — just push and reboot.
 
