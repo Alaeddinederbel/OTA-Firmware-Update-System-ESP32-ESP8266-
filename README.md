@@ -26,7 +26,7 @@ This project implements a secure OTA firmware update system built around two ESP
 
 <div align="center">
 
-![System Overview](General.png)
+![Overview](General.png)
 
 </div>
 
