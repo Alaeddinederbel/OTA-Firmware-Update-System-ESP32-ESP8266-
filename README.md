@@ -1,35 +1,40 @@
-# OTA Firmware Update System - ESP32 + ESP8266
+# OTA Firmware Update System — ESP32 + ESP8266
 
-> Wireless firmware delivery over Wi-Fi. No cables. No manual visits. Just push and reboot.
+> Wireless firmware delivery over Wi-Fi. No cables, no manual visits — just push and reboot.
 
-[![Platform](https://img.shields.io/badge/platform-ESP32%20%7C%20ESP8266-blue)](https://www.espressif.com/)
-[![Framework](https://img.shields.io/badge/framework-Arduino%20%7C%20PlatformIO-orange)](https://platformio.org/)
-[![Protocol](https://img.shields.io/badge/protocol-HTTP%20%7C%20TCP--IP-green)](https://en.wikipedia.org/wiki/HTTP)
-[![RTOS](https://img.shields.io/badge/RTOS-FreeRTOS-purple)](https://www.freertos.org/)
+[![Platform](https://img.shields.io/badge/platform-ESP32%20%7C%20ESP8266-blue?style=flat-square)](https://www.espressif.com/)
+[![Framework](https://img.shields.io/badge/framework-Arduino%20%7C%20PlatformIO-orange?style=flat-square)](https://platformio.org/)
+[![Protocol](https://img.shields.io/badge/protocol-HTTP%20%7C%20TCP--IP-green?style=flat-square)](https://en.wikipedia.org/wiki/HTTP)
+[![RTOS](https://img.shields.io/badge/RTOS-FreeRTOS-purple?style=flat-square)](https://www.freertos.org/)
 
 ---
 
 ## Overview
 
-This project implements a production-grade **Over-The-Air (OTA) firmware update system** for embedded IoT devices. The ESP32 acts as a trigger master it sends a single HTTP request to wake the ESP8266 client, which then autonomously downloads a new firmware binary from a local server, flashes itself, and reboots all without any physical intervention.
+<div align="center">
 
-```
-ESP32 (Master)           ESP8266 (Client)           PC (Firmware Server)
-      │                       │                               │
-      │── GET /update ──────▶│                               │
-      │                       │─────  GET /firmware.bin ────▶│
-      │                       │◀────  firmware.bin ───────── │
-      │                       │                               │
-      │              [flash → verify MD5 → reboot]            │
-      │                       │                               │
-      │                  "Firmware v2.0"                      │
-```
+**Secure Over-The-Air (OTA) firmware updates for embedded IoT devices — zero cables, zero manual visits.**
+
+</div>
+
+This project implements a secure OTA firmware update system built around two ESP boards in a master/client relationship:
+
+- 🟦 **ESP32 (Master)** — sends a single HTTP trigger to wake the client
+- 🟩 **ESP8266 (Client)** — downloads, verifies, flashes, and reboots autonomously
+
+<br>
+
+<div align="center">
+
+![System Overview](General.png)
+
+</div>
 
 ---
 
 ## Why OTA Matters
 
-Imagine 500 temperature sensors deployed across a factory floor. A critical bug is discovered in the firmware. Without OTA, every device requires a physical visit, a USB cable, and a manual flash weeks of work and significant cost.
+Imagine 500 temperature sensors deployed across a factory floor. A critical bug is discovered in the firmware. Without OTA, every device requires a physical visit, a USB cable, and a manual flash — weeks of work and significant cost.
 
 **With this system, you push a fix from your laptop. All 500 devices update overnight.**
 
@@ -50,17 +55,17 @@ Imagine 500 temperature sensors deployed across a factory floor. A critical bug 
 ### How It Works
 
 | Step | Actor | Action |
-|------|-------|--------|
-| 1 | ESP32 | Connects to Wi-Fi, spawns FreeRTOS trigger task on Core 1 |
-| 2 | ESP32 | Sends `GET /update` to ESP8266 every 10 seconds until accepted |
-| 3 | ESP8266 | Receives request, replies `200 OK` immediately |
-| 4 | ESP8266 | Downloads `firmware.bin` from PC server in chunks |
-| 5 | ESP8266 | Verifies MD5 checksum, writes to OTA partition |
-| 6 | ESP8266 | Updates boot pointer, reboots into new firmware |
+|:---:|---|---|
+| 1 | ESP32 | Connects to Wi-Fi, spawns a FreeRTOS trigger task on Core 1 |
+| 2 | ESP32 | Sends `GET /update` to the ESP8266 every 10 seconds until accepted |
+| 3 | ESP8266 | Receives the request, replies `200 OK` immediately |
+| 4 | ESP8266 | Downloads `firmware.bin` from the PC server in chunks |
+| 5 | ESP8266 | Verifies the MD5 checksum and writes to the OTA partition |
+| 6 | ESP8266 | Updates the boot pointer and reboots into the new firmware |
 
-### Why the Dual-Partition Flash is Safe
+### Why the Dual-Partition Flash Is Safe
 
-The ESP8266 holds two firmware partitions in its 4 MB flash. The running firmware is **never overwritten** — new firmware is written to the inactive partition and only activated after MD5 verification passes. A failed download or power cut leaves the original firmware intact.
+The ESP8266 holds two firmware partitions in its 4 MB flash. The running firmware is **never overwritten** — new firmware is written to the inactive partition and only activated after MD5 verification passes. A failed download or power cut leaves the original firmware fully intact, so the device can never be bricked mid-update.
 
 ---
 
@@ -68,12 +73,12 @@ The ESP8266 holds two firmware partitions in its 4 MB flash. The running firmwar
 
 ```
 ota-esp32-esp8266/
-├── esp32-master/               # ESP32 // OTA trigger master
+├── esp32-master/               # ESP32 — OTA trigger master
 │   ├── platformio.ini          # Board: esp32dev, framework: arduino
 │   └── src/
 │       └── main.cpp            # FreeRTOS task, HTTPClient trigger
 │
-├── esp8266-client/             # ESP8266 // OTA client
+├── esp8266-client/             # ESP8266 — OTA client
 │   ├── platformio.ini          # Board: nodemcuv2 (or d1_mini)
 │   └── src/
 │       └── main.cpp            # WebServer + ESPhttpUpdate
@@ -83,7 +88,7 @@ ota-esp32-esp8266/
 │   └── src/
 │       └── main.cpp            # Prints "Firmware v2.0..." after update
 │
-├── firmware-server/            # Served by Python HTTP server
+├── firmware-server/            # Served by a Python HTTP server
 │   └── README.md               # Instructions for binary deployment
 │
 ├── .gitignore                  # Excludes .pio/, *.bin, .vscode/
@@ -95,17 +100,17 @@ ota-esp32-esp8266/
 ## Tech Stack
 
 | Layer | Technology | Role |
-|-------|-----------|------|
-| Hardware | ESP32 (Xtensa LX6, 240MHz) | Trigger master, dual-core |
-| Hardware | ESP8266 (Xtensa LX106, 80MHz) | OTA client, 4MB flash |
+|---|---|---|
+| Hardware | ESP32 (Xtensa LX6, dual-core, 240 MHz) | Trigger master |
+| Hardware | ESP8266 (Xtensa LX106, 80 MHz) | OTA client, 4 MB flash |
 | RTOS | FreeRTOS | Task scheduling on ESP32 Core 1 |
 | Network | lwIP / TCP-IP / 802.11 | Wi-Fi transport layer |
 | Protocol | HTTP/1.1 | Trigger + firmware delivery |
 | Framework | Arduino via PlatformIO | Hardware abstraction |
-| Libraries | ESP8266WebServer | HTTP server on ESP8266 |
-| Libraries | ESP8266httpUpdate | OTA flash management |
-| Libraries | HTTPClient (ESP32) | HTTP GET trigger |
-| Server | Python http.server | Static firmware file serving |
+| Library | ESP8266WebServer | HTTP server on ESP8266 |
+| Library | ESP8266httpUpdate | OTA flash management |
+| Library | HTTPClient (ESP32) | HTTP GET trigger |
+| Server | Python `http.server` | Static firmware file serving |
 
 ---
 
@@ -114,11 +119,11 @@ ota-esp32-esp8266/
 ### Hardware
 
 | Component | Example | Purpose |
-|-----------|---------|---------|
+|---|---|---|
 | ESP32 dev board | ESP32-WROOM-32 DevKit v1 | Master trigger |
 | ESP8266 dev board | NodeMCU v2 or Wemos D1 Mini | OTA client |
 | 2× USB cables | Micro-USB | Initial flashing only |
-| PC on same Wi-Fi | Windows / macOS / Linux | Firmware server |
+| PC on same Wi-Fi network | Windows / macOS / Linux | Firmware server |
 
 ### Software
 
@@ -133,15 +138,15 @@ ota-esp32-esp8266/
 Before flashing, update these variables in each source file:
 
 | File | Variable | Set To |
-|------|----------|--------|
+|---|---|---|
 | `esp32-master/src/main.cpp` | `WIFI_SSID` | Your Wi-Fi network name |
 | `esp32-master/src/main.cpp` | `WIFI_PASSWORD` | Your Wi-Fi password |
-| `esp32-master/src/main.cpp` | `ESP8266_IP` | IP printed by ESP8266 on Serial Monitor |
+| `esp32-master/src/main.cpp` | `ESP8266_IP` | IP printed by the ESP8266 on the Serial Monitor |
 | `esp8266-client/src/main.cpp` | `WIFI_SSID` | Your Wi-Fi network name |
 | `esp8266-client/src/main.cpp` | `WIFI_PASSWORD` | Your Wi-Fi password |
 | `esp8266-client/src/main.cpp` | `FIRMWARE_URL` | `http://YOUR_PC_IP:8000/firmware.bin` |
 
-**Find your PC IP:**
+**Find your PC's IP address:**
 ```bash
 # Linux / macOS
 hostname -I
@@ -199,7 +204,7 @@ Open esp8266-client/ in VS Code
 ```
 File → New Window in VS Code
 → Open esp32-master/
-→ Edit src/main.cpp: set WIFI_SSID, WIFI_PASSWORD, and paste ESP8266 IP into ESP8266_IP
+→ Edit src/main.cpp: set WIFI_SSID, WIFI_PASSWORD, and paste the ESP8266 IP into ESP8266_IP
 → PlatformIO: Upload
 → Open Serial Monitor at 115200 baud
 ```
@@ -219,7 +224,7 @@ Switch to the ESP8266 Serial Monitor. You should see:
 ============================
   OTA Update Successful!
   Device is updated and running
-  Firmware v2.0 
+  Firmware v2.0
 ============================
 ```
 
@@ -228,16 +233,24 @@ Switch to the ESP8266 Serial Monitor. You should see:
 ## Troubleshooting
 
 | Symptom | Cause | Fix |
-|---------|-------|-----|
-| ESP32 response code `-1` | Wrong ESP8266 IP | Check ESP8266 Serial Monitor for its actual IP |
-| `Update FAILED` on ESP8266 | Wrong PC IP or server not running | Run `python3 -m http.server 8000` and verify firmware.bin is in the folder |
-| `firmware.bin` 404 error | Binary not copied to `firmware-server/` | Build `firmware-v2` and copy the `.bin` |
-| Serial shows garbled text | Wrong baud rate | Set Serial Monitor to exactly `115200` |
-| Board not detected (Windows) | Missing USB driver | Install [CP210x](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers) or [CH340](https://sparks.gogo.co.nz/ch340.html) driver |
-| ESP8266 flashes every 10s in a loop | No version check | Add `CURRENT_VERSION` guard in `handleUpdate()` |
+|---|---|---|
+| ESP32 response code `-1` | Wrong ESP8266 IP | Check the ESP8266 Serial Monitor for its actual IP |
+| `Update FAILED` on ESP8266 | Wrong PC IP or server not running | Run `python3 -m http.server 8000` and verify `firmware.bin` is in the folder |
+| `firmware.bin` 404 error | Binary not copied to `firmware-server/` | Build `firmware-v2` and copy the `.bin` file |
+| Serial shows garbled text | Wrong baud rate | Set the Serial Monitor to exactly `115200` |
+| Board not detected (Windows) | Missing USB driver | Install the [CP210x](https://www.silabs.com/developers/usb-to-uart-bridge-vcp-drivers) or [CH340](https://sparks.gogo.co.nz/ch340.html) driver |
+| ESP8266 flashes every 10s in a loop | No version check | Add a `CURRENT_VERSION` guard in `handleUpdate()` |
+
+---
+
+## Future Improvements
+
+- **Digital signature verification** in addition to MD5, to guard against a compromised firmware server, not just corrupted downloads
+- **HTTPS** instead of plain HTTP for the firmware transfer, to prevent man-in-the-middle tampering
+- **Rollback on boot failure** — automatically revert to the previous partition if the new firmware fails to boot within N attempts
 
 ---
 
 ## Author
 
-**Ala Eddine Derbel**, *Embedded Systems Engineer*
+**Ala Eddine Derbel** — *Embedded Systems Engineer*
