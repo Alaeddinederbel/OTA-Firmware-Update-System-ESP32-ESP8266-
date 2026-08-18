@@ -17,11 +17,6 @@ With OTA, you push a fix from your laptop in minutes — all 500 devices update 
 
 # Mon projet
 
-![Overview](Overview.png)
-
-<<<<<<< HEAD
-----
-=======
 <div align="center">
 
 ![Overview](General.png)
